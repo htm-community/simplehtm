@@ -8,3 +8,7 @@ npm-debug.log*
 # Dependency directories
 node_modules/
 
+# tests
+.nyc_output/
+coverage/
+
