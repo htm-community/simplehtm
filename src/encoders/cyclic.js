@@ -1,6 +1,6 @@
 let d3 = require('d3')
 
-class CyclicCategoryEncoder {
+class CyclicEncoder {
 
     constructor(opts) {
         this.buckets = opts.buckets
@@ -33,7 +33,7 @@ class CyclicCategoryEncoder {
             if (bitIndex >= bits) bitIndex = bitIndex - bits
             if (bitIndex < 0) bitIndex = bitIndex + bits
             if (bitIndex > bits-1) {
-                throw new Error('CyclicCategoryEncoder attempted to store bits out of range!')
+                throw new Error('CyclicEncoder attempted to store bits out of range!')
             }
             out[bitIndex] = 1
             flip = ! flip
@@ -46,14 +46,14 @@ class CyclicCategoryEncoder {
 
         // Old checks I left in just in case and also because I didn't write unit tests.
         if (! out.every(isValid) || validated !== out.length) {
-            throw new Error('CyclicCategoryEncoder created non-continuous output!')
+            throw new Error('CyclicEncoder created non-continuous output!')
         }
         if (out.length > this.bits) {
-            throw new Error('CyclicCategoryEncoder created output of the wrong length!')
+            throw new Error('CyclicEncoder created output of the wrong length!')
         }
 
         return out
     }
 }
 
-module.exports = CyclicCategoryEncoder
+module.exports = CyclicEncoder

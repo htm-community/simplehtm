@@ -9,6 +9,7 @@ window.simplehtm = {
         RelativeScalarEncoder: require('./encoders/relativeScalar'),
         RDSE: require('./encoders/rdse'),
         CyclicEncoder: require('./encoders/cyclic'),
+        DayOfWeekCategoryEncoder: require('./encoders/dayOfWeekCategory'),
     }
 
 }
