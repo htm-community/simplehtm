@@ -14,8 +14,6 @@ let modules = []
 modules.push({
     mode: mode,
     entry: [
-        "./src/encoders/scalar.js",
-        "./src/encoders/relativeScalar.js",
         "./src/index.js",
     ],
     module: {

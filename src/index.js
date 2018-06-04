@@ -7,6 +7,7 @@ window.simplehtm = {
         ScalarEncoder: scalars.ScalarEncoder,
         PeriodicScalarEncoder: scalars.PeriodicScalarEncoder,
         RelativeScalarEncoder: require('./encoders/relativeScalar'),
+        RDSE: require('./encoders/rdse'),
     }
 
 }
