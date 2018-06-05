@@ -14,8 +14,8 @@ class DayOfWeekCategoryEncoder extends CyclicEncoder {
 
     constructor(opts) {
         // Seven days in a week, then increase bit count based upon range.
-        opts.buckets = 7
-        opts.bits = opts.buckets * opts.range
+        opts.values = 7
+        opts.buckets = opts.values * opts.range
         super(opts)
     }
 

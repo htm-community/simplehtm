@@ -5,17 +5,17 @@ const DayOfWeekCategoryEncoder = require('../../../src/encoders/dayOfWeekCategor
 
 describe('cyclic encoders', () => {
 
-    describe('when encoding same number of buckets as bits with range of 1', () => {
-        let buckets = 19,
-            bits = 19,
+    describe('when encoding same number of values as bits with range of 1', () => {
+        let values = 20,
+            buckets = 20,
             range = 1,
             encoder = new CyclicEncoder({
+                values: values,
                 buckets: buckets,
-                bits: bits,
                 range: range,
             })
         it('encodes one value per bit', () => {
-            let start = 0, end = buckets - 1
+            let start = 0, end = values - 1
             for (let i = start; i < end; i++) {
                 let value = i
                 let encoding = encoder.encode(value)
