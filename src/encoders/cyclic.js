@@ -14,7 +14,7 @@ class CyclicEncoder {
     encode(value) {
         let out = []
         let buckets = this.buckets
-        if (value >= buckets) {
+        if (value >= this.values) {
             throw new Error('Cannot encode value outside bucket range: ' + value)
         }
         d3.range(0, this.buckets).forEach(() => { out.push(0) })
