@@ -12,7 +12,7 @@ class CyclicEncoder {
     }
 
     get resolution() {
-        return this.values * (this.range / this.buckets)
+        return Math.max(this.values / this.buckets, 1)
     }
 
     encode(value) {

@@ -57,7 +57,49 @@ describe('cyclic encoders', () => {
                 range: range,
             })
         it('has the correct resolution', () => {
+            expect(encoder.resolution).to.equal(5)
+        })
+    })
+
+    describe('when 100 values 10 buckets and range 6', () => {
+        let values = 100,
+            buckets = 10,
+            range = 6,
+            encoder = new CyclicEncoder({
+                values: values,
+                buckets: buckets,
+                range: range,
+            })
+        it('has the correct resolution', () => {
             expect(encoder.resolution).to.equal(10)
+        })
+    })
+
+    describe('when 7 values 7 buckets and range 1', () => {
+        let values = 7,
+            buckets = 7,
+            range = 1,
+            encoder = new CyclicEncoder({
+                values: values,
+                buckets: buckets,
+                range: range,
+            })
+        it('has the correct resolution', () => {
+            expect(encoder.resolution).to.equal(1)
+        })
+    })
+
+    describe('when 7 values 21 buckets and range 3', () => {
+        let values = 7,
+            buckets = 21,
+            range = 3,
+            encoder = new CyclicEncoder({
+                values: values,
+                buckets: buckets,
+                range: range,
+            })
+        it('has the correct resolution', () => {
+            expect(encoder.resolution).to.equal(1)
         })
     })
 
