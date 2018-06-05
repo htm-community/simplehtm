@@ -28,6 +28,37 @@ describe('cyclic encoders', () => {
                 })
             }
         })
+        it('has the correct resolution', () => {
+            expect(encoder.resolution).to.equal(1)
+        })
+    })
+
+    describe('when many values into one bucket and range 1', () => {
+        let values = 10,
+            buckets = 2,
+            range = 1,
+            encoder = new CyclicEncoder({
+                values: values,
+                buckets: buckets,
+                range: range,
+            })
+        it('has the correct resolution', () => {
+            expect(encoder.resolution).to.equal(5)
+        })
+    })
+
+    describe('when many values into one bucket and range > 1', () => {
+        let values = 20,
+            buckets = 4,
+            range = 2,
+            encoder = new CyclicEncoder({
+                values: values,
+                buckets: buckets,
+                range: range,
+            })
+        it('has the correct resolution', () => {
+            expect(encoder.resolution).to.equal(10)
+        })
     })
 
     describe('when encoding days of week', () => {
@@ -42,6 +73,8 @@ describe('cyclic encoders', () => {
             let Thursday = encoder.encode(encoder.daysOfWeek[4])
             let Friday = encoder.encode(encoder.daysOfWeek[5])
             let Saturday = encoder.encode(encoder.daysOfWeek[6])
+
+            expect(encoder.resolution).to.equal(1)
 
             expect(Sunday).to.deep
                 .equal([1,0,0,0,0,0,0])
@@ -71,6 +104,8 @@ describe('cyclic encoders', () => {
             let Friday = encoder.encode(encoder.daysOfWeek[5])
             let Saturday = encoder.encode(encoder.daysOfWeek[6])
 
+            expect(encoder.resolution).to.equal(1)
+
             expect(Sunday).to.deep
                 .equal([1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1])
             expect(Monday).to.deep
@@ -87,10 +122,6 @@ describe('cyclic encoders', () => {
                 .equal([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0])
         })
 
-    })
-
-    describe('when encoding weekends', () => {
-        it('')
     })
 
 })

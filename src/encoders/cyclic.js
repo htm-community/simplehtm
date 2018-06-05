@@ -11,6 +11,10 @@ class CyclicEncoder {
             .range([0, this.buckets])
     }
 
+    get resolution() {
+        return this.values * (this.range / this.buckets)
+    }
+
     encode(value) {
         let out = []
         let buckets = this.buckets
