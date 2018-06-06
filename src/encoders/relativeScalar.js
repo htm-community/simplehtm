@@ -47,9 +47,15 @@ class RelativeScalarEncoder {
         this.max = max
         this.range = max - min
         this.bounded = bounded
+        let domainMin = min,
+            domainMax = max
+        if (bounded) {
+            domainMin -= this.resolution / 2
+            domainMax += this.resolution / 2
+        }
         this._bitIndexToValue = d3.scaleLinear()
                                     .domain([0, n])
-                                    .range([min, max])
+                                    .range([domainMin, domainMax])
     }
 
     encode(value) {
