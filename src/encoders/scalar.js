@@ -1,122 +1,113 @@
+let d3 = require('d3')
+
 class ScalarEncoder {
 
-    constructor(n, w, min, max) {
-        this.n = n
-        this.resolution = w
-        this.numBuckets = n - w + 1
-        this.range = max - min
-        this.min = min
-        this.max = max
-        this._valueToBitIndex = d3.scaleLinear()
-            .domain([0, this.n])
-            .range([min, max])
-        this.sparsity = w / n
+    constructor(opts) {
+        this.n = opts.n
+        this.w = opts.w
+        if (opts.resolution !== undefined) {
+            // This will automatically set the min/max
+            this.resolution = opts.resolution
+        } else {
+            this.min = opts.min
+            this.max = opts.max
+            this.__createScales()
+        }
+        this.bounded = opts.bounded || false
     }
 
-    encode(input) {
-        let output = [];
-        let firstBit;
-        let min = this.min;
-        firstBit = Math.floor(this.numBuckets * (input - min) / this.range)
-        for (let i = 0; i < this.n; i ++) {
-            output.push(0)
+    get inputDomain() {
+        let min = 0,
+            max = 0
+        if (this.min !== undefined && this.max !== undefined) {
+            min = this.min
+            max = this.max
+        } else {
+            max = this.n * this.resolution
         }
-        for (let i = 0; i < this.resolution; i++) {
-            if (firstBit + i < output.length) output[firstBit + i] = 1;
-        }
-        return output;
+        return [min, max]
     }
 
-    getRangeFromBitIndex(i) {
-        let value = this._valueToBitIndex(i)
-        let start = value - this.max * this.sparsity / 2
-        let end = value + this.max * this.sparsity / 2
+    get outputRange() {
+        return [0, this.n]
+    }
+
+    set resolution(r) {
+        //             this.resolution = (this.max - this.min) * this.w / this.n
+        this._resolution = r
+        this.min = 0
+        this.max = this.n * this.resolution
+        // Since min/max changed, we have to re-create the scales.
+        this.__createScales()
+    }
+
+    get resolution() {
+        if (this._resolution !== undefined) return this._resolution
+        else return (this.max - this.min) * this.w / this.n
+    }
+
+    __createScales() {
+        this.scale = d3.scaleLinear()
+            .domain(this.inputDomain)
+            .range(this.outputRange)
+        this.reverseScale = d3.scaleLinear()
+            .domain(this.outputRange)
+            .range(this.inputDomain)
+    }
+
+    __getClosestOutIndex(value) {
+        let index = Math.floor(this.scale(value))
+        if (index > this.n - 1) {
+            // floor index to max
+            index = this.n - 1
+        }
+        return index
+    }
+
+    __checkValue(value) {
+        // check
+        let inputDomain = this.inputDomain
+        if (value < inputDomain[0] || value > inputDomain[1]) {
+            throw new Error('Cannot encode value outside valid range: ' + value)
+        }
+    }
+
+    __getEmptyEncoding() {
         let out = []
-        out.push(start)
-        out.push(end)
+        d3.range(0, this.n).forEach(() => { out.push(0) })
         return out
     }
+
+    _applyOutputBitRangeAtIndex(encoding, index, value) {
+        let out = []
+        // For each bit in the encoding.
+        for (let i = 0; i < this.n; i++) {
+            let bitScalarValue = this.reverseScale(i),
+                bitOut = 0,
+                min = this.min,
+                max = this.max,
+                resolution = this.resolution,
+                valueDiff = bitScalarValue - value,
+                valueDistance = Math.abs(valueDiff),
+                radius = this.resolution / 2
+            if (valueDistance <= radius) bitOut = 1
+            if (this.bounded) {
+                // Keeps the bucket from changing size at min/max values
+                if (value < (min + radius) && bitScalarValue < (min + resolution)) bitOut = 1
+                if (value > (max - radius) && bitScalarValue > (max - resolution)) bitOut = 1
+            }
+            out.push(bitOut)
+        }
+        return out
+    }
+
+    encode(value) {
+        this.__checkValue(value)
+        let index = this.__getClosestOutIndex(value)
+        let out = this.__getEmptyEncoding()
+        out[index] = 1
+        return this._applyOutputBitRangeAtIndex(out, index, value)
+    }
 }
 
-
-function PeriodicScalarEncoder(n, w, radius, minValue, maxValue) {
-    let neededBuckets;
-    // Distribute nBuckets points along the domain [minValue, maxValue],
-    // including the endpoints. The resolution is the width of each band
-    // between the points.
-
-    if ((! n && ! radius)
-        || (n && radius)) {
-        throw new Error('Exactly one of n / radius must be defined.');
-    }
-
-    this.resolution = w;
-    this.radius = radius;
-    this.minValue = minValue;
-    this.maxValue = maxValue;
-
-    this.range = maxValue - minValue;
-
-    if (n) {
-        this.n = n;
-        this.radius = this.resolution * (this.range / this.n);
-        this.bucketWidth = this.range / this.n;
-    } else {
-        this.bucketWidth = this.radius / this.resolution;
-        neededBuckets = Math.ceil((this.range) / this.bucketWidth);
-        if (neededBuckets > this.resolution) {
-            this.n = neededBuckets;
-        } else {
-            this.n = this.resolution + 1;
-        }
-    }
-
-}
-
-PeriodicScalarEncoder.prototype.getWidth = function() {
-    return this.n;
-};
-
-PeriodicScalarEncoder.prototype.encode = function(input) {
-    let output = [];
-    let i, index;
-    let iBucket = Math.floor((input - this.minValue) / this.bucketWidth);
-    let middleBit = iBucket;
-    let reach = (this.resolution - 1) / 2.0;
-    let left = Math.floor(reach);
-    let right = Math.ceil(reach);
-
-    if (input < this.minValue || input >= this.maxValue) {
-        throw Error('Input out of bounds: ' + input);
-    }
-
-    for (let i = 0; i < this.n; i ++) {
-        output.push(0);
-    }
-
-    output[middleBit] = 1;
-
-    for (i = 1; i <= left; i++) {
-        index = middleBit - 1;
-        if (index < 0) {
-            index = index + this.n;
-        }
-        if (index > this.n) {
-            throw Error('out of bounds');
-        }
-        output[index] = 1;
-    }
-    for (i = 1; i <= right; i++) {
-        if ((middleBit + i) % this.n > this.n) {
-            throw Error('out of bounds');
-        }
-        output[(middleBit + i) % this.n] = 1;
-    }
-    return output;
-
-};
-
-module.exports = {
-    ScalarEncoder: ScalarEncoder,
-    PeriodicScalarEncoder: PeriodicScalarEncoder,
-}
+module.exports = ScalarEncoder

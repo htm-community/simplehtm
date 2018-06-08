@@ -1,6 +1,6 @@
 const assert = require('chai').assert
 const expect = require('chai').expect
-const CyclicEncoder = require('../../../src/encoders/cyclic')
+const CyclicEncoder = require('../../../src/encoders/cyclicScalar')
 const DayOfWeekCategoryEncoder = require('../../../src/encoders/dayOfWeekCategory')
 
 describe('cyclic encoders', () => {
@@ -53,6 +53,44 @@ describe('cyclic encoders', () => {
         })
     })
 
+    describe('when creating', () => {
+        it('translates min/max into the right input domain', () => {
+            let encoder = new CyclicEncoder({
+                min: 0,
+                max: 90,
+                w: 1,
+                n: 10,
+            })
+            expect(encoder.encode(0)).to.deep.equal([1,0,0,0,0,0,0,0,0,0])
+            expect(encoder.encode(10)).to.deep.equal([0,1,0,0,0,0,0,0,0,0])
+            expect(encoder.encode(20)).to.deep.equal([0,0,1,0,0,0,0,0,0,0])
+            expect(encoder.encode(30)).to.deep.equal([0,0,0,1,0,0,0,0,0,0])
+            expect(encoder.encode(40)).to.deep.equal([0,0,0,0,1,0,0,0,0,0])
+            expect(encoder.encode(50)).to.deep.equal([0,0,0,0,0,1,0,0,0,0])
+            expect(encoder.encode(60)).to.deep.equal([0,0,0,0,0,0,1,0,0,0])
+            expect(encoder.encode(70)).to.deep.equal([0,0,0,0,0,0,0,1,0,0])
+            expect(encoder.encode(80)).to.deep.equal([0,0,0,0,0,0,0,0,1,0])
+            expect(encoder.encode(90)).to.deep.equal([0,0,0,0,0,0,0,0,0,1])
+        })
+        it('translates resolution into the right input domain', () => {
+            let encoder = new CyclicEncoder({
+                resolution: 9,
+                w: 1,
+                n: 10,
+            })
+            expect(encoder.encode(0)).to.deep.equal([1,0,0,0,0,0,0,0,0,0])
+            expect(encoder.encode(10)).to.deep.equal([0,1,0,0,0,0,0,0,0,0])
+            expect(encoder.encode(20)).to.deep.equal([0,0,1,0,0,0,0,0,0,0])
+            expect(encoder.encode(30)).to.deep.equal([0,0,0,1,0,0,0,0,0,0])
+            expect(encoder.encode(40)).to.deep.equal([0,0,0,0,1,0,0,0,0,0])
+            expect(encoder.encode(50)).to.deep.equal([0,0,0,0,0,1,0,0,0,0])
+            expect(encoder.encode(60)).to.deep.equal([0,0,0,0,0,0,1,0,0,0])
+            expect(encoder.encode(70)).to.deep.equal([0,0,0,0,0,0,0,1,0,0])
+            expect(encoder.encode(80)).to.deep.equal([0,0,0,0,0,0,0,0,1,0])
+            expect(encoder.encode(90)).to.deep.equal([0,0,0,0,0,0,0,0,0,1])
+        })
+    })
+
     // describe('when 7 values 7 buckets and range 1', () => {
     //     let values = 7,
     //         buckets = 7,
@@ -94,8 +132,6 @@ describe('cyclic encoders', () => {
             let Friday = encoder.encode(encoder.daysOfWeek[5])
             let Saturday = encoder.encode(encoder.daysOfWeek[6])
 
-            expect(encoder.resolution).to.equal(1)
-
             expect(Sunday).to.deep
                 .equal([1,0,0,0,0,0,0])
             expect(Monday).to.deep
@@ -123,8 +159,6 @@ describe('cyclic encoders', () => {
             let Thursday = encoder.encode(encoder.daysOfWeek[4])
             let Friday = encoder.encode(encoder.daysOfWeek[5])
             let Saturday = encoder.encode(encoder.daysOfWeek[6])
-
-            expect(encoder.resolution).to.equal(1)
 
             expect(Sunday).to.deep
                 .equal([1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
