@@ -54,7 +54,7 @@ describe('cyclic encoders', () => {
     })
 
     describe('when creating', () => {
-        it('translates min/max into the right input domain', () => {
+        it('translates _min/_max into the right input domain', () => {
             let encoder = new CyclicEncoder({
                 min: 0,
                 max: 90,
@@ -88,6 +88,25 @@ describe('cyclic encoders', () => {
             expect(encoder.encode(70)).to.deep.equal([0,0,0,0,0,0,0,1,0,0])
             expect(encoder.encode(80)).to.deep.equal([0,0,0,0,0,0,0,0,1,0])
             expect(encoder.encode(90)).to.deep.equal([0,0,0,0,0,0,0,0,0,1])
+        })
+
+        describe('has w output bits on', () => {
+            it('when created with min/max', () => {
+                let encoder = new CyclicEncoder({
+                    min: 0, max: 9,
+                    w: 3, n: 10,
+                })
+                expect(encoder.encode(0)).to.deep.equal([1,1,1,0,0,0,0,0,0,0])
+                expect(encoder.encode(1)).to.deep.equal([0,1,1,1,0,0,0,0,0,0])
+                expect(encoder.encode(2)).to.deep.equal([0,0,1,1,1,0,0,0,0,0])
+                expect(encoder.encode(3)).to.deep.equal([0,0,0,1,1,1,0,0,0,0])
+                expect(encoder.encode(4)).to.deep.equal([0,0,0,0,1,1,1,0,0,0])
+                expect(encoder.encode(5)).to.deep.equal([0,0,0,0,0,1,1,1,0,0])
+                expect(encoder.encode(6)).to.deep.equal([0,0,0,0,0,0,1,1,1,0])
+                expect(encoder.encode(7)).to.deep.equal([0,0,0,0,0,0,0,1,1,1])
+                expect(encoder.encode(8)).to.deep.equal([1,0,0,0,0,0,0,0,1,1])
+                expect(encoder.encode(9)).to.deep.equal([1,1,0,0,0,0,0,0,0,1])
+            })
         })
     })
 

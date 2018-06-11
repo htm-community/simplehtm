@@ -2,7 +2,7 @@ let ScalarEncoder = require('./scalar')
 
 class CyclicScalarEncoder extends ScalarEncoder {
 
-    _applyOutputBitRangeAtIndex(encoding, index) {
+    _applyBitmaskAtIndex(encoding, index) {
         for (let i = 1; i < this.w; i++) {
             let bitIndex = index + i
             // Adjust for out of range, by cycling around

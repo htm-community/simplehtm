@@ -6,11 +6,11 @@ class ScalarEncoder {
         this.n = opts.n
         this.w = opts.w
         if (opts.resolution !== undefined) {
-            // This will automatically set the min/max
+            // This will automatically set the _min/_max
             this.resolution = opts.resolution
         } else {
-            this.min = opts.min
-            this.max = opts.max
+            this._min = opts.min
+            this._max = opts.max
             this.__createScales()
         }
         this.bounded = opts.bounded || false
@@ -19,9 +19,9 @@ class ScalarEncoder {
     get inputDomain() {
         let min = 0,
             max = 0
-        if (this.min !== undefined && this.max !== undefined) {
-            min = this.min
-            max = this.max
+        if (this._min !== undefined && this._max !== undefined) {
+            min = this._min
+            max = this._max
         } else {
             max = this.n * this.resolution
         }
@@ -32,18 +32,38 @@ class ScalarEncoder {
         return [0, this.n]
     }
 
+    /**
+     * Returns the scalar range of values encoded within one output bit.
+     */
+    get resolution() {
+        if (this._resolution !== undefined) return this._resolution
+        else return (this._max - this._min) / this.n
+    }
+
+    get min() {
+        return this._min
+    }
+    get max() {
+        return this._max
+    }
+
+    // after min, _max, or resolution are set, gotta re-create the scales
+
     set resolution(r) {
-        //             this.resolution = (this.max - this.min) * this.w / this.n
         this._resolution = r
-        this.min = 0
-        this.max = this.n * this.resolution
-        // Since min/max changed, we have to re-create the scales.
+        this._min = 0
+        this._max = this.n * this.resolution
+        // Since _min/_max changed, we have to re-create the scales.
         this.__createScales()
     }
 
-    get resolution() {
-        if (this._resolution !== undefined) return this._resolution
-        else return (this.max - this.min) * this.w / this.n
+    set min(m) {
+        this._min = m
+        this.__createScales()
+    }
+    set max(m) {
+        this._max = m
+        this.__createScales()
     }
 
     __createScales() {
@@ -58,14 +78,13 @@ class ScalarEncoder {
     __getClosestOutIndex(value) {
         let index = Math.floor(this.scale(value))
         if (index > this.n - 1) {
-            // floor index to max
+            // floor index to _max
             index = this.n - 1
         }
         return index
     }
 
     __checkValue(value) {
-        // check
         let inputDomain = this.inputDomain
         if (value < inputDomain[0] || value > inputDomain[1]) {
             throw new Error('Cannot encode value outside valid range: ' + value)
@@ -78,23 +97,40 @@ class ScalarEncoder {
         return out
     }
 
-    _applyOutputBitRangeAtIndex(encoding, index, value) {
-        let out = []
+    _applyBitmaskAtIndex(encoding, index) {
+        let out = [],
+            w = this.w,
+            n = this.n,
+            min = this.min,
+            max = this.max,
+            lowerBuffer = this.reverseScale(w),
+            upperBuffer = this.reverseScale(n - w),
+            lowerValue = this.reverseScale(index - (w/2)),
+            upperValue = this.reverseScale(index + (w/2))
+
+
         // For each bit in the encoding.
         for (let i = 0; i < this.n; i++) {
-            let bitScalarValue = this.reverseScale(i),
-                bitOut = 0,
-                min = this.min,
-                max = this.max,
-                resolution = this.resolution,
-                valueDiff = bitScalarValue - value,
-                valueDistance = Math.abs(valueDiff),
-                radius = this.resolution / 2
-            if (valueDistance <= radius) bitOut = 1
+            let bitValue = this.reverseScale(i),
+                bitOut = 0
+
+            if (lowerValue <= bitValue && bitValue < upperValue) {
+                bitOut = 1
+            }
+
             if (this.bounded) {
-                // Keeps the bucket from changing size at min/max values
-                if (value < (min + radius) && bitScalarValue < (min + resolution)) bitOut = 1
-                if (value > (max - radius) && bitScalarValue > (max - resolution)) bitOut = 1
+                // Keeps the bucket from changing size at _min/_max values
+                if (lowerValue < min && bitValue < lowerBuffer) {
+                    bitOut = 1
+                }
+                if (upperValue > max && bitValue >= upperBuffer) {
+                    bitOut = 1
+                }
+                // let radius = w/2
+                // if (index < (0 + radius) && i < (0 + radius)) bitOut = 1
+                // if (index > (n - radius) && i > (n - radius)) bitOut = 1
+                // if (value < (min + radius) && bitValue < (min + resolution)) bitOut = 1
+                // if (value > (max - radius) && bitValue > (max - resolution)) bitOut = 1
             }
             out.push(bitOut)
         }
@@ -106,7 +142,7 @@ class ScalarEncoder {
         let index = this.__getClosestOutIndex(value)
         let out = this.__getEmptyEncoding()
         out[index] = 1
-        return this._applyOutputBitRangeAtIndex(out, index, value)
+        return this._applyBitmaskAtIndex(out, index)
     }
 }
 
