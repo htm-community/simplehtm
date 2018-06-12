@@ -17,27 +17,19 @@ class ScalarEncoder {
         this.__createScales()
     }
 
-    get inputDomain() {
-        return [this.min, this.max]
+    // These linear scales are used to move from input domain to
+    // output range and back. The are re-created anytime the min
+    // or max values change, or n changes.
+    __createScales() {
+        this.scale = d3.scaleLinear()
+            .domain(this.inputDomain)
+            .range(this.outputRange)
+        this.reverseScale = d3.scaleLinear()
+            .domain(this.outputRange)
+            .range(this.inputDomain)
     }
 
-    get outputRange() {
-        return [0, this.n]
-    }
-
-    /**
-     * Returns the scalar range of values encoded within one output bit.
-     */
-    get resolution() {
-        return (this._max - this._min) / this.n
-    }
-
-    get min() {
-        return this._min
-    }
-    get max() {
-        return this._max
-    }
+    // Setters
 
     set resolution(r) {
         this.min = 0
@@ -53,52 +45,65 @@ class ScalarEncoder {
         this.__createScales()
     }
 
-    // These linear scales are used to move from input domain to
-    // output range and back. The are re-created anytime the min
-    // or max values change, or n changes.
-    __createScales() {
-        this.scale = d3.scaleLinear()
-            .domain(this.inputDomain)
-            .range(this.outputRange)
-        this.reverseScale = d3.scaleLinear()
-            .domain(this.outputRange)
-            .range(this.inputDomain)
+    // Getters
+
+    // The minimum input value range, to the max value range.
+    // This range is inclusive on both bounds and continuous.
+    get inputDomain() {
+        return [this.min, this.max]
     }
 
-    // Using the scale, get the correspoding integer index for value
-    scaleInputValueToOutputIndex(value) {
+    // The integer range of bit indices for output from this encoder.
+    get outputRange() {
+        return [0, this.n]
+    }
+
+    // Range of values represented within one output bit.
+    get resolution() {
+        return (this._max - this._min) / this.n
+    }
+
+    // Minimum scalar value that can be represented.
+    get min() {
+        return this._min
+    }
+    // Maximum scalar value that can be represented.
+    get max() {
+        return this._max
+    }
+
+    // Accepts a scalar value within the input domain, returns an
+    // array of bits representing the value.
+    encode(value) {
+        // Create an array of n zeros JavaScript style :P
+        let out = Array.apply(null, Array(this.n))
+            .map(Number.prototype.valueOf,0);
+        // Using the scale, get the corresponding integer
+        // index for this value
         let index = Math.floor(this.scale(value))
         if (index > this.n - 1) {
             index = this.n - 1
         }
-        return index
+        // Turn on the targeted index
+        out[index] = 1
+        // Apply a mask at the targeted bit index in another
+        // function, so we can subclass it!
+        return this._applyBitmaskAtIndex(out, index)
     }
 
-    __checkValue(value) {
-        let inputDomain = this.inputDomain
-        if (value < inputDomain[0] || value > inputDomain[1]) {
-            throw new Error('Cannot encode value outside valid range: ' + value)
-        }
-    }
-
-    __getEmptyEncoding() {
-        let out = []
-        d3.range(0, this.n).forEach(() => { out.push(0) })
-        return out
-    }
-
-    // This is meant to be overridden by subclasses that want to apply bitmasks
-    // differently, for example a cyclic encoder.
+    // This is meant to be overridden by subclasses that want
+    // to apply bitmasks differently.
     _applyBitmaskAtIndex(encoding, index) {
         let out = [],
             w = this.w,
             lowerValue = this.reverseScale(index - (w/2)),
             upperValue = this.reverseScale(index + (w/2))
 
-        // For each bit in the encoding, we get the input domain value. Using w, we
-        // know how wide the bitmask should be, so we use the reverse scales to define
-        // the size of the bitmask. If this index is within the value range, we turn
-        // it on.
+        // For each bit in the encoding, we get the input domain
+        // value. Using w, we know how wide the bitmask should
+        // be, so we use the reverse scales to define the size
+        // of the bitmask. If this index is within the value
+        // range, we turn it on.
         for (let i = 0; i < this.n; i++) {
             let bitValue = this.reverseScale(i),
                 bitOut = 0
@@ -110,13 +115,6 @@ class ScalarEncoder {
         return out
     }
 
-    encode(value) {
-        this.__checkValue(value)
-        let out = this.__getEmptyEncoding()
-        let index = this.scaleInputValueToOutputIndex(value)
-        out[index] = 1
-        return this._applyBitmaskAtIndex(out, index)
-    }
 }
 
 module.exports = ScalarEncoder
