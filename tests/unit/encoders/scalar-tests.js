@@ -67,19 +67,6 @@ describe('scalar encoders', () => {
             })
         })
 
-        describe('and w>1 bounded', () => {
-            it('has 5 output bits on when w=5', () => {
-                let encoder = new ScalarEncoder({
-                    min: 0, max: 1,
-                    w: 5, n: 10,
-                    bounded: true,
-                })
-                expect(encoder.encode(0)).to.deep.equal([1,1,1,1,1,0,0,0,0,0])
-                expect(encoder.encode(0.5)).to.deep.equal([0,0,0,1,1,1,1,1,0,0])
-                expect(encoder.encode(1)).to.deep.equal([0,0,0,0,0,1,1,1,1,1])
-            })
-        })
-
     })
 
     describe('when created with resolution', () => {
@@ -143,19 +130,6 @@ describe('scalar encoders', () => {
                 expect(encoder.encode(0)).to.deep.equal([1,1,1,0,0,0,0,0,0,0])
                 expect(encoder.encode(0.5)).to.deep.equal([0,0,0,1,1,1,1,1,0,0])
                 expect(encoder.encode(1)).to.deep.equal([0,0,0,0,0,0,0,1,1,1])
-            })
-        })
-
-        describe('and w>1 bounded', () => {
-            it('has 5 output bits on when w=5', () => {
-                let encoder = new ScalarEncoder({
-                    resolution: 0.1,
-                    w: 5, n: 10,
-                    bounded: true,
-                })
-                expect(encoder.encode(0)).to.deep.equal([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
-                expect(encoder.encode(0.5)).to.deep.equal([0, 0, 0, 1, 1, 1, 1, 1, 0, 0])
-                expect(encoder.encode(1)).to.deep.equal([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
             })
         })
 
