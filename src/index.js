@@ -5,7 +5,7 @@ window.simplehtm = {
         ScalarEncoder: require('./encoders/scalar'),
         BoundedScalarEncoder: require('./encoders/boundedScalar'),
         CyclicEncoder: require('./encoders/cyclicScalar'),
-        DayOfWeekCategoryEncoder: require('./encoders/dayOfWeekCategory'),
+        CategoryEncoder: require('./encoders/category'),
     }
 
 }
