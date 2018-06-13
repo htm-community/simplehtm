@@ -32,8 +32,8 @@ class ScalarEncoder {
     // Setters
 
     set resolution(r) {
-        this.min = 0
-        this.max = this.n * r
+        this._min = 0
+        this._max = this.n * r
     }
 
     set min(m) {

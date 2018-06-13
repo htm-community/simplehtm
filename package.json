@@ -1,6 +1,6 @@
 {
   "name": "simplehtm",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Simple HTM implementation.",
   "main": "index.js",
   "scripts": {
