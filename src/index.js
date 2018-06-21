@@ -6,6 +6,7 @@ window.simplehtm = {
         BoundedScalarEncoder: require('./encoders/boundedScalar'),
         CyclicEncoder: require('./encoders/cyclicScalar'),
         CategoryEncoder: require('./encoders/category'),
+        WeekendEncoder: require('./encoders/weekend'),
     }
 
 }
