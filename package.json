@@ -1,11 +1,10 @@
 {
   "name": "simplehtm",
-  "version": "0.0.15",
+  "version": "0.1.0",
   "description": "Simple HTM implementation.",
   "main": "index.js",
   "scripts": {
-    "test": "nyc --reporter=html --reporter=text mocha tests --recursive",
-    "start": "./node_modules/.bin/webpack"
+    "test": "nyc --reporter=html --reporter=text mocha tests --recursive"
   },
   "repository": {
     "type": "git",
@@ -27,11 +26,9 @@
     "babel-loader": "^7.1.4",
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
-    "nyc": "^12.0.2",
-    "webpack": "^4.6.0",
-    "webpack-cli": "^2.0.15"
+    "nyc": "^12.0.2"
   },
   "dependencies": {
-    "d3": "^5.4.0"
+    "d3": "^5.9.0"
   }
 }
