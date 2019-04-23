@@ -23,10 +23,12 @@
   },
   "homepage": "https://github.com/htm-community/simplehtm#readme",
   "devDependencies": {
-    "babel-loader": "^7.1.4",
+    "@babel/core": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
+    "babel-loader": "^8.0.5",
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
-    "nyc": "^12.0.2"
+    "nyc": "^14.0.0"
   },
   "dependencies": {
     "d3": "^5.9.0"
