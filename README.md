@@ -1,5 +1,7 @@
 # simplehtm
 
+[![Build Status](https://travis-ci.org/htm-community/simplehtm.svg?branch=master)](https://travis-ci.org/htm-community/simplehtm)
+
 Simple HTM implementation being constructed for [Building HTM Systems](https://github.com/htm-community/building-htm-systems) and some random blog entries like [this one](https://numenta.com/blog/2018/05/25/how-grid-cells-map-space/).
 
 ### Work In Progress
