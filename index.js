@@ -5,5 +5,6 @@ module.exports = {
     CyclicEncoder: require('./src/encoders/cyclicScalar'),
     CategoryEncoder: require('./src/encoders/category'),
     WeekendEncoder: require('./src/encoders/weekend'),
+    DayOfWeekCategoryEncoder: require('./src/encoders/dayOfWeekCategory'),
   }
 }
