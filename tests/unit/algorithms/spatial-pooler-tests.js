@@ -1,3 +1,5 @@
+let d3 = require('d3')
+
 const assert = require('chai').assert
 const expect = require('chai').expect
 const SpatialPooler = require('../../../src/algorithms/spatialPooler')
@@ -126,8 +128,23 @@ describe('spatial pooler instantiation', () => {
 				})
 			})
 
-			it('permanences are normally distributed around a center point', () => {
-				assert.fail('not implemented')
+			it('permanences are randomly distributed by default', () => {
+				const allPerms = sp.getPermanences()
+				allPerms.forEach((perms, minicolumnIndex) => {
+					assert.lengthOf(perms, inputCount, 'fully connected perms should be same size as input space')
+					const avg = d3.mean(perms)
+					assert.closeTo(0.5, avg, 0.1, 'Average permanence across minicolumn should be centered at 0.5 by default')
+					// const sortedPerms = perms.slice().sort()
+					const sampleWidth = Math.floor(sortedPerms.length * 0.1)
+					const midIndex = Math.floor(sortedPerms.length / 2)
+					const halfSample = Math.floor(sortedPerms / 2)
+
+					const first10Percent = sortedPerms.slice(0, sampleWidth)
+					const last10Percent = sortedPerms.slice(sortedPerms.length - sampleWidth)
+					const middle10Percent = sortedPerms.slice(midIndex - halfSample, midIndex + halfSample)
+
+					assert.closeTo(d3.mean(first10Percent), d3.mean(last10Percent), 0.1)
+				})
 			})
 
 		})
