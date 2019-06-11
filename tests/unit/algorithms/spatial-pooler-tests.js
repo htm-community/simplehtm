@@ -1,22 +1,24 @@
-let d3 = require('d3')
-
 const assert = require('chai').assert
-const expect = require('chai').expect
+
+const d3 = require('d3')
+
 const SpatialPooler = require('../../../src/algorithms/spatialPooler')
+
 const connectedPercTestCases = [1, .75, .5, .25, 0.1]
 const defaultInputCount = 500
 const defaultSpSize = 200
 
 describe('upon SP instantiation', () => {
-
 	describe('when creating potential pools', () => {
-
+		
+		// Loop over a range of connected percents
 		connectedPercTestCases.forEach(connectedPercent => {
-
+		
 			describe(`with ${connectedPercent * 100}% connectivity`, () => {
 
-				// How close should the pool be to expected connectivity?
-				const testTolerance = 0.1
+				// Lower connectionPercent means fewer connections to average across,
+				// so we need to add more tolerance for these.
+				const testTolerance = 0.05 + (1 - connectedPercent) * 0.1
 
 				const inputCount = defaultInputCount
 				const spSize = defaultSpSize
@@ -44,13 +46,8 @@ describe('upon SP instantiation', () => {
 							'potential pool contains non-unique indices')
 					})
 				})
-
 			})
-
 		})
-
-
-	
 	})
 
 	describe('less than 100% connected potential pools are always the same', () => {
@@ -92,7 +89,6 @@ describe('upon SP instantiation', () => {
 						})
 						const allPerms = sp.getPermanences()
 						const pools = sp.getPotentialPools()
-						const testTolerance = 0.05 + (1 - connectedPercent) * 0.1
 
 						it('contains minicolumn permanences', () => {
 							assert.lengthOf(allPerms, sp.opts.size, 
@@ -113,23 +109,13 @@ describe('upon SP instantiation', () => {
 							})
 						})
 			
-						it('permanences are normally distributed around specified c enter', () => {
+						it('permanences are normally distributed around specified center', () => {
+							// Lower connectionPercent means fewer connections to average across,
+							// so we need to add more tolerance for these.
+							const testTolerance = 0.05 + (1 - connectedPercent) * 0.1
 							allPerms.forEach((perms, minicolumnIndex) => {
-								const avg = d3.mean(perms)
-		
-								assert.closeTo(distributionCenter, avg, testTolerance, 
-									`Average permanence across minicolumn ${minicolumnIndex} should be centered at of ${distributionCenter}`)
-			
-								// const sortedPerms = perms.slice().sort()
-								// const sampleWidth = Math.floor(sortedPerms.length * 0.1)
-								// const midIndex = Math.floor(sortedPerms.length / 2)
-								// const halfSample = Math.floor(sortedPerms / 2)
-			
-								// const first10Percent = sortedPerms.slice(0, sampleWidth)
-								// const last10Percent = sortedPerms.slice(sortedPerms.length - sampleWidth)
-								// const middle10Percent = sortedPerms.slice(midIndex - halfSample, midIndex + halfSample)
-			
-								// assert.closeTo(d3.mean(first10Percent), d3.mean(last10Percent), 0.1)
+								assert.closeTo(d3.mean(perms), distributionCenter, testTolerance, 
+									`Average permanence across ${perms.length} permanences should be centered at ${distributionCenter}`)
 							})
 						})
 	
