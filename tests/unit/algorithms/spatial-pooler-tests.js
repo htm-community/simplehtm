@@ -91,6 +91,7 @@ describe('upon SP instantiation', () => {
 						const pools = sp.getPotentialPools()
 
 						it('contains minicolumn permanences', () => {
+							this.timeout(0)
 							assert.lengthOf(allPerms, sp.opts.size, 
 								'perms should be same size as minicolumn count')
 							allPerms.forEach((perms, minicolumnIndex) => {
