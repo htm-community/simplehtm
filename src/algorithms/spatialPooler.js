@@ -6,7 +6,7 @@ class SpatialPooler  {
 		this.opts = opts
 		this._potentialPools = this._createPotentialPools()
 		this._batesFn = d3.randomBates(this.opts.batesIndependentVariables || 1)
-		this._batesCenter = this.opts.batesCenter || 0.5
+		this._batesCenter = this.opts.distributionCenter || 0.5
 	}
 
 	getPotentialPools() {
@@ -42,7 +42,10 @@ class SpatialPooler  {
 		pools.forEach(pool => {
 			const perms = []
 			pool.forEach(_ => {
-				perms.push(this._batesFn())
+				let perm = this._batesFn() + this._batesCenter - 0.5
+				if (perm > 1) perm = 1
+				if (perm < 0) perm = 0
+				perms.push(perm)
 			})
 			allPerms.push(perms)
 		})
