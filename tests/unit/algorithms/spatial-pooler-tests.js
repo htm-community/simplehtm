@@ -53,7 +53,7 @@ describe('upon SP instantiation', () => {
   })
 
   describe('less than 100% connected potential pools are always the same', () => {
-    const inputCount = defaultInputCount
+    const inputCount = defaultInputCount * 2
     const spSize = defaultSpSize
     const sp = new SpatialPooler({
       // Assume 1D input, global inhibition, no topology
@@ -151,8 +151,8 @@ describe('when calculating overlaps', () => {
 
   const inputSaturations = [1, .75, .5, .25, 0.1]
 
-  const inputCount = 1000
-  const spSize = 500
+  const inputCount = defaultInputCount * 2
+  const spSize = defaultSpSize
   const connectionThreshold = 0.5
   const connectedPercent = 0.85
   const sp = new SpatialPooler({
@@ -200,4 +200,55 @@ describe('when calculating overlaps', () => {
 
   })
 
+})
+
+describe('during minicolumn competition', () => {
+
+  [1, 10, 40, 100].forEach(winnerCount => {
+
+    const inputCount = defaultInputCount
+    const spSize = defaultSpSize
+    const connectionThreshold = 0.5
+    const connectedPercent = 0.85
+    const sp = new SpatialPooler({
+      // Assume 1D input, global inhibition, no topology
+      inputCount: inputCount,
+      // Assume 1D input, global inhibition, no topology
+      size: spSize,
+      connectedPercent: connectedPercent,
+      connectionThreshold: connectionThreshold,
+      winnerCount: winnerCount,
+    })
+
+    describe(`with ${winnerCount} winning minicolumns`, () => {
+
+      [1, .75, .5, .25, 0.1].forEach(inputSaturation => {
+
+        describe(`input saturation ${inputSaturation*100}%`, () => {
+        
+          it('mc with most overlap wins', () => {
+            const input = []
+            for (let x = 0; x < inputCount; x++) {
+              input.push(Math.random() < inputSaturation ? 1 : 0)
+            }
+      
+            const winners = sp.compete(input)
+      
+            assert.isArray(winners, 'SP competition result must be an array')
+            assert.lengthOf(winners, winnerCount, 'wrong minicolumn competition winner count')
+
+            winners.forEach(winner => {
+              for (let x = 0; x < sp.opts.size; x++) {
+                // only test against losers
+                if (! winners.map(v => v.index).indexOf(x)) {
+                  assert.isAtLeast(winner.overlap.length, sp.calculateOverlap(x, input).length, 
+                  'all winner minicolumns must have higher overlap scores than losers')
+                }
+              }
+            })
+          })
+        })
+      })
+    })
+  })
 })

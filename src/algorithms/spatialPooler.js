@@ -18,6 +18,24 @@ class SpatialPooler {
     return this._permanences
   }
 
+  compete(input) {
+    const overlaps = []
+    for (let mcIndex = 0; mcIndex < this.opts.size; mcIndex++) {
+      overlaps.push({
+        index: mcIndex,
+        overlap: this.calculateOverlap(mcIndex, input)
+      })
+    }
+    // Sort by overlap score
+    overlaps.sort((a, b) => {
+      if (a.overlap.length < b.overlap.length) return -1
+      if (a.overlap.length > b.overlap.length) return 1
+      return 0
+    })
+
+    return overlaps.slice(overlaps.length - this.opts.winnerCount)
+  }
+
   calculateOverlap(minicolumnIndex, input) {
     const pool = this.getPotentialPools()[minicolumnIndex]
     const perms = this.getPermanences()[minicolumnIndex]
