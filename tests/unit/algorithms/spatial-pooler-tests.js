@@ -9,7 +9,7 @@ const defaultSpSize = 200
 
 describe('upon SP instantiation', () => {
 
-	const connectedPercTestCases = [1, .75, .5, .25, 0.1]
+	const connectedPercTestCases = [0.1, .3, .6, 1]
 
 	describe('when creating potential pools', () => {
 
@@ -149,7 +149,7 @@ describe('upon SP instantiation', () => {
 
 describe('when calculating overlaps', () => {
 
-	const inputSaturations = [1, .75, .5, .25, 0.1]
+	const inputSaturations = [0.1, .3, .6, .1]
 
 	const inputCount = defaultInputCount * 2
 	const spSize = defaultSpSize
@@ -222,11 +222,11 @@ describe('during minicolumn competition', () => {
 
 		describe(`with ${winnerCount} winning minicolumns`, () => {
 
-			[1, .75, .5, .25, 0.1].forEach(inputSaturation => {
+			[0.1, .3, .6, 1].forEach(inputSaturation => {
 
 				describe(`input saturation ${inputSaturation * 100}%`, () => {
 
-					it('mc with most overlap wins', () => {
+					it('minicolumns with most overlap win', () => {
 						const input = []
 						for (let x = 0; x < inputCount; x++) {
 							input.push(Math.random() < inputSaturation ? 1 : 0)
