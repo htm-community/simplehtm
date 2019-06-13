@@ -6,5 +6,9 @@ module.exports = {
     CategoryEncoder: require('./src/encoders/category'),
     WeekendEncoder: require('./src/encoders/weekend'),
     DayOfWeekCategoryEncoder: require('./src/encoders/dayOfWeekCategory'),
-  }
+	},
+	
+	algorithms: {
+		SpatialPooler: require('./src/algorithms/spatialPooler'),
+	}
 }
