@@ -6,8 +6,9 @@
 *.log
 npm-debug.log*
 
-# Dependency directories
+# NPM
 node_modules/
+package-lock.json
 
 # tests
 .nyc_output/
