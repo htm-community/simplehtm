@@ -18,6 +18,10 @@ class SpatialPooler {
 		return this._permanences
 	}
 
+	getOverlaps() {
+		return this._overlaps
+	}
+
 	compete(input) {
 		const overlaps = []
 		for (let mcIndex = 0; mcIndex < this.opts.size; mcIndex++) {
@@ -27,7 +31,7 @@ class SpatialPooler {
 			})
 		}
 		// Sort by overlap score
-		overlaps.sort((a, b) => {
+		this._overlaps = overlaps.sort((a, b) => {
 			if (a.overlap.length < b.overlap.length) return -1
 			if (a.overlap.length > b.overlap.length) return 1
 			return 0
