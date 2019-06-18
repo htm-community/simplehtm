@@ -16,7 +16,11 @@ class SpatialPooler {
 	}
 
 	getPermanences() {
-		return this._permanences.map(array => [...array])
+		const permCopy = []
+		this._permanences.forEach(perms => {
+			permCopy.push(perms.slice())
+		})
+		return permCopy
 	}
 
 	getOverlaps() {
