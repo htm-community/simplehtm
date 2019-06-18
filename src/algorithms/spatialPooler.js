@@ -63,12 +63,13 @@ class SpatialPooler {
 				const perms = me._permanences[winner.index]
 				perms.forEach((_, poolIndex) => {
 					const inputIndex = pool[poolIndex]
+					const perm = perms[poolIndex]
 					if (overlap.includes(inputIndex)) {
-						// increment perms only of connections that overlap
-						perms[poolIndex] += permanenceInc
+						// increment perms only of connections that overlap, no more than 1
+						perms[poolIndex] = Math.min(perm + permanenceInc, 1)
 					} else {
-						// decrement perms for non-overlapping connections
-						perms[poolIndex] -= permanenceDec
+						// decrement perms for non-overlapping connections, no less than 0
+						perms[poolIndex] = Math.max(perm - permanenceDec, 0)
 					}
 				})
 			})
