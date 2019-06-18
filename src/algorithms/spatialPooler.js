@@ -8,6 +8,7 @@ class SpatialPooler {
 		this._batesCenter = this.opts.distributionCenter || 0.5
 		this._potentialPools = this._createPotentialPools()
 		this._permanences = this._createPermanences()
+		this._learningEnabled = !!this.opts.learn
 	}
 
 	getPotentialPools() {
@@ -15,15 +16,27 @@ class SpatialPooler {
 	}
 
 	getPermanences() {
-		return this._permanences
+		return this._permanences.map(array => [...array])
 	}
 
 	getOverlaps() {
 		return this._overlaps
 	}
 
+	disableLearning() {
+		this._learningEnabled = false
+	}
+
+	enableLearning() {
+		this._learningEnabled = true
+	}
+
 	compete(input) {
 		const overlaps = []
+		const me = this
+		const allPools = this._potentialPools
+		const permanenceInc = this.opts.permanenceInc
+		const permanenceDec = this.opts.permanenceDec
 		for (let mcIndex = 0; mcIndex < this.opts.size; mcIndex++) {
 			overlaps.push({
 				index: mcIndex,
@@ -37,7 +50,27 @@ class SpatialPooler {
 			return 0
 		})
 
-		return overlaps.slice(overlaps.length - this.opts.winnerCount)
+		const winners = overlaps.slice(overlaps.length - this.opts.winnerCount)
+
+		if (this._learningEnabled) {
+			winners.forEach(winner => {
+				const overlap = winner.overlap
+				const pool = allPools[winner.index]
+				const perms = me._permanences[winner.index]
+				perms.forEach((_, poolIndex) => {
+					const inputIndex = pool[poolIndex]
+					if (overlap.includes(inputIndex)) {
+						// increment perms only of connections that overlap
+						perms[poolIndex] += permanenceInc
+					} else {
+						// decrement perms for non-overlapping connections
+						perms[poolIndex] -= permanenceDec
+					}
+				})
+			})
+		}
+
+		return winners
 	}
 
 	calculateOverlap(minicolumnIndex, input) {
