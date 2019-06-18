@@ -56,17 +56,15 @@ class SpatialPooler {
 			winners.forEach(winner => {
 				const overlap = winner.overlap
 				const pool = allPools[winner.index]
-				me._permanences[winner.index].slice().forEach((perm, poolIndex) => {
+				const perms = me._permanences[winner.index]
+				perms.forEach((_, poolIndex) => {
 					const inputIndex = pool[poolIndex]
-					// console.log(`perm: ${perm} / input: ${inputIndex} / pool: ${poolIndex}`)
 					if (overlap.includes(inputIndex)) {
 						// increment perms only of connections that overlap
-						// console.log(`before incrementing ${me._permanences[winner.index][poolIndex]}`)
-						me._permanences[winner.index][poolIndex] = perm + permanenceInc
-						// console.log(`after incrementing ${me._permanences[winner.index][poolIndex]}`)
+						perms[poolIndex] += permanenceInc
 					} else {
 						// decrement perms for non-overlapping connections
-						me._permanences[winner.index][poolIndex] = perm - permanenceDec
+						perms[poolIndex] -= permanenceDec
 					}
 				})
 			})

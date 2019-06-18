@@ -1,0 +1,4 @@
+# mocha.opts
+	--recursive
+	--timeout 999999
+	--colors
