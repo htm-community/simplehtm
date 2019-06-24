@@ -65,7 +65,31 @@ describe('scalar encoders', () => {
                 expect(encoder.encode(0.5)).to.deep.equal([0,0,0,1,1,1,1,1,0,0])
                 expect(encoder.encode(1)).to.deep.equal([0,0,0,0,0,0,0,1,1,1])
             })
-        })
+				})
+				
+				describe('when min is negative', () => {
+					it('when w=1 n=2 center on 0 encodes 1 output bit at correct index', () => {
+						let encoder = new ScalarEncoder({
+								min: -1, max: 1,
+								w: 1, n: 2,
+								bounded: false,
+						})
+						expect(encoder.encode(-1)).to.deep.equal([1,0])
+						expect(encoder.encode(-0.0001)).to.deep.equal([1,0])
+						expect(encoder.encode(0.0001)).to.deep.equal([0,1])
+						expect(encoder.encode(1)).to.deep.equal([0,1])
+					})
+					it('has 5 output bits on when w=5', () => {
+						let encoder = new ScalarEncoder({
+								min: -1, max: 1,
+								w: 5, n: 10,
+								bounded: false,
+						})
+						expect(encoder.encode(-1)).to.deep.equal([1,1,1,0,0,0,0,0,0,0])
+						expect(encoder.encode(0)).to.deep.equal([0,0,0,1,1,1,1,1,0,0])
+						expect(encoder.encode(1)).to.deep.equal([0,0,0,0,0,0,0,1,1,1])
+				})
+				})
 
     })
 

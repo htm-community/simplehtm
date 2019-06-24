@@ -9,6 +9,8 @@ class SpatialPooler {
 		this._potentialPools = this._createPotentialPools()
 		this._permanences = this._createPermanences()
 		this._learningEnabled = !!this.opts.learn
+		this._adcs = this._createActiveDutyCycles()
+		this._computeCount = 0
 	}
 
 	getPotentialPools() {
@@ -91,6 +93,19 @@ class SpatialPooler {
 		return overlap
 	}
 
+	computeActiveDutyCycles(winners) {
+		this._computeCount++
+		const out = []
+		const winnerIndices = winners.map(w => w.index)
+		for (let mcIndex = 0; mcIndex < this.opts.size; mcIndex++) {
+			if (winnerIndices.includes(mcIndex)) {
+				this._adcs[mcIndex]++
+			}
+			out.push(this._adcs[mcIndex] / this._computeCount)
+		}
+		return out
+	}
+
 	_createPotentialPools() {
 		let pools = []
 		for (let i = 0; i < this.opts.size; i++) {
@@ -119,6 +134,14 @@ class SpatialPooler {
 			allPerms.push(perms)
 		})
 		return allPerms
+	}
+
+	_createActiveDutyCycles() {
+		const adcs = []
+		for (let i = 0; i < this.opts.size; i++) {
+			adcs.push(0)
+		}
+		return adcs
 	}
 
 }
