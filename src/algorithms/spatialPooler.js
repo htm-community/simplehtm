@@ -38,19 +38,24 @@ class SpatialPooler {
 	}
 
 	compete(input) {
+		this._overlaps = []
 		const overlaps = []
 		const me = this
 		const allPools = this._potentialPools
 		const permanenceInc = this.opts.permanenceInc
 		const permanenceDec = this.opts.permanenceDec
 		for (let mcIndex = 0; mcIndex < this.opts.size; mcIndex++) {
+			const overlap = this.calculateOverlap(mcIndex, input)
 			overlaps.push({
 				index: mcIndex,
-				overlap: this.calculateOverlap(mcIndex, input)
+				overlap: overlap,
 			})
+			// This allows a simple structure for retreival from API
+			this._overlaps.push(overlap)
 		}
+
 		// Sort by overlap score
-		this._overlaps = overlaps.sort((a, b) => {
+		overlaps.sort((a, b) => {
 			if (a.overlap.length < b.overlap.length) return -1
 			if (a.overlap.length > b.overlap.length) return 1
 			return 0

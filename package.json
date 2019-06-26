@@ -1,36 +1,36 @@
 {
-  "name": "simplehtm",
-  "version": "0.2.7",
-  "description": "Simple HTM implementation.",
-  "main": "index.js",
-  "scripts": {
-    "test": "nyc --reporter=html --reporter=text mocha --recursive"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/htm-community/simplehtm.git"
-  },
-  "keywords": [
-    "htm",
-    "neuroscience",
-    "ann",
-    "numenta"
-  ],
-  "author": "Matt Taylor <matt@numenta.org>",
-  "license": "AGPL-3.0-or-later",
-  "bugs": {
-    "url": "https://github.com/htm-community/simplehtm/issues"
-  },
-  "homepage": "https://github.com/htm-community/simplehtm#readme",
-  "devDependencies": {
-    "@babel/core": "^7.4.3",
-    "@babel/preset-env": "^7.4.3",
-    "babel-loader": "^8.0.5",
-    "chai": "^4.1.2",
-    "mocha": "^5.2.0",
-    "nyc": "^14.0.0"
-  },
-  "dependencies": {
-    "d3": "^5.9.0"
-  }
+	"name": "simplehtm",
+	"version": "0.2.8",
+	"description": "Simple HTM implementation.",
+	"main": "index.js",
+	"scripts": {
+		"test": "nyc --reporter=html --reporter=text mocha --recursive"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/htm-community/simplehtm.git"
+	},
+	"keywords": [
+		"htm",
+		"neuroscience",
+		"ann",
+		"numenta"
+	],
+	"author": "Matt Taylor <matt@numenta.org>",
+	"license": "AGPL-3.0-or-later",
+	"bugs": {
+		"url": "https://github.com/htm-community/simplehtm/issues"
+	},
+	"homepage": "https://github.com/htm-community/simplehtm#readme",
+	"devDependencies": {
+		"@babel/core": "^7.4.3",
+		"@babel/preset-env": "^7.4.3",
+		"babel-loader": "^8.0.5",
+		"chai": "^4.1.2",
+		"mocha": "^5.2.0",
+		"nyc": "^14.0.0"
+	},
+	"dependencies": {
+		"d3": "^5.9.0"
+	}
 }
