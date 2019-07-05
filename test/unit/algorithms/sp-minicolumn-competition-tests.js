@@ -112,6 +112,13 @@ describe('during minicolumn competition', () => {
 								}
 							}
 						})
+
+						// Ensure getOverlap returns simple data structure that matches.
+						sp.getOverlaps().forEach((overlap, mcIndex) => {
+							assert.deepEqual(overlap, sp.calculateOverlap(mcIndex, input),
+								'overlap array from getOverlap was not expected')
+						})
+
 					})
 
 					const input = []
@@ -147,10 +154,12 @@ describe('during minicolumn competition', () => {
 										const newPerm = newPerms[poolIndex]
 
 										if (overlap.includes(inputIndex)) {
-											assert.equal(newPerm, Math.min(originalPerm + permanenceInc, 1.0),
+											const expected = Math.min(1.0, originalPerm + permanenceInc)
+											assert.equal(newPerm, expected,
 												`winner minicolumn at ${mcIndex} was not incremented for overlapping input index ${inputIndex}`)
 										} else {
-											assert.equal(newPerm, Math.max(originalPerm - permanenceDec, 0.0),
+											const expected = Math.max(0.0, originalPerm - permanenceDec)
+											assert.equal(newPerm, expected,
 												`winner minicolumn at ${mcIndex} was not decremented for NON-overlapping input index ${inputIndex}`)
 										}
 									})
