@@ -99,14 +99,32 @@ class SpatialPooler {
 	}
 
 	computeActiveDutyCycles(winners) {
+		const binaryWinners = []
 		this._computeCount++
-		const out = []
 		const winnerIndices = winners.map(w => w.index)
 		for (let mcIndex = 0; mcIndex < this.opts.size; mcIndex++) {
+			let bit = 0
 			if (winnerIndices.includes(mcIndex)) {
-				this._adcs[mcIndex]++
+				bit = 1
 			}
-			out.push(this._adcs[mcIndex] / this._computeCount)
+			binaryWinners.push(bit)
+		}
+		let period = this.opts.dutyCyclePeriod  !== undefined 
+									? this.opts.dutyCyclePeriod : this._computeCount
+		if ( period > this._computeCount) {
+			period = this._computeCount
+		}
+		this._adcs = this._computeDutyCycle(this._adcs, binaryWinners, period)
+		return this._adcs
+	}
+
+	_computeDutyCycle(dutyCycles, newInput, period) {
+		const out = []
+		for (let mcIndex = 0; mcIndex < this.opts.size; mcIndex++) {
+			const dutyCycle = 
+				(dutyCycles[mcIndex] * (period - 1) + newInput[mcIndex]) 
+					/ period
+			out.push(dutyCycle)
 		}
 		return out
 	}
