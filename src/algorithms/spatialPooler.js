@@ -9,7 +9,8 @@ class SpatialPooler {
 		this._potentialPools = this._createPotentialPools()
 		this._permanences = this._createPermanences()
 		this._learningEnabled = !!this.opts.learn
-		this._adcs = this._createActiveDutyCycles()
+		this._adcs = this._createEmptyDutyCycles()
+		this._odcs = this._createEmptyDutyCycles()
 		this._computeCount = 0
 	}
 
@@ -29,6 +30,22 @@ class SpatialPooler {
 		return this._overlaps
 	}
 
+	getActiveDutyCycles() {
+		return this._adcs
+	}
+
+	getMeanActiveDutyCycles() {
+		return this._meanDutyCycle(this._adcs)
+	}
+
+	getOverlapDutyCycles() {
+		return this._odcs
+	}
+
+	getMeanOverlapDutyCycles() {
+		return this._meanDutyCycle(this._odcs)
+	}
+
 	disableLearning() {
 		this._learningEnabled = false
 	}
@@ -44,6 +61,7 @@ class SpatialPooler {
 		const allPools = this._potentialPools
 		const permanenceInc = this.opts.permanenceInc
 		const permanenceDec = this.opts.permanenceDec
+		this._computeCount++
 		for (let mcIndex = 0; mcIndex < this.opts.size; mcIndex++) {
 			const overlap = this.calculateOverlap(mcIndex, input)
 			overlaps.push({
@@ -82,6 +100,9 @@ class SpatialPooler {
 			})
 		}
 
+		this.computeOverlapDutyCycles(overlaps)
+		this.computeActiveDutyCycles(winners)
+
 		return winners
 	}
 
@@ -100,7 +121,6 @@ class SpatialPooler {
 
 	computeActiveDutyCycles(winners) {
 		const binaryWinners = []
-		this._computeCount++
 		const winnerIndices = winners.map(w => w.index)
 		for (let mcIndex = 0; mcIndex < this.opts.size; mcIndex++) {
 			let bit = 0
@@ -109,24 +129,44 @@ class SpatialPooler {
 			}
 			binaryWinners.push(bit)
 		}
-		let period = this.opts.dutyCyclePeriod  !== undefined 
-									? this.opts.dutyCyclePeriod : this._computeCount
-		if ( period > this._computeCount) {
-			period = this._computeCount
-		}
-		this._adcs = this._computeDutyCycle(this._adcs, binaryWinners, period)
-		return this._adcs
+		this._updateDutyCycles(this._adcs, binaryWinners)
 	}
 
-	_computeDutyCycle(dutyCycles, newInput, period) {
-		const out = []
+	computeOverlapDutyCycles(overlaps) {
+		const perMinicolumnOverlap = []
 		for (let mcIndex = 0; mcIndex < this.opts.size; mcIndex++) {
-			const dutyCycle = 
-				(dutyCycles[mcIndex] * (period - 1) + newInput[mcIndex]) 
-					/ period
-			out.push(dutyCycle)
+			perMinicolumnOverlap.push(0)
 		}
-		return out
+		overlaps.forEach(overlap => {
+			perMinicolumnOverlap[overlap.index] = overlap.overlap.length
+		})
+		this._updateDutyCycles(this._odcs, perMinicolumnOverlap)
+		return this._meanDutyCycle(this._odcs)
+	}
+
+	_updateDutyCycles(dutyCycles, newInput) {
+		let period = this.opts.dutyCyclePeriod !== undefined
+			? this.opts.dutyCyclePeriod : this._computeCount
+		if (period > this._computeCount) {
+			period = this._computeCount
+		}
+		for (let mcIndex = 0; mcIndex < this.opts.size; mcIndex++) {
+			const dutyCycle = dutyCycles[mcIndex]
+			// Moving window
+			if (dutyCycle.length >= period) {
+				dutyCycle.shift()
+			}
+			dutyCycle.push(newInput[mcIndex])
+		}
+	}
+
+	_meanDutyCycle(dutyCycles) {
+		return dutyCycles.map(cycle => {
+			const sum = cycle.reduce((accumulator, currentValue) => {
+				return accumulator + currentValue
+			})
+			return sum / cycle.length
+		})
 	}
 
 	_createPotentialPools() {
@@ -159,12 +199,12 @@ class SpatialPooler {
 		return allPerms
 	}
 
-	_createActiveDutyCycles() {
-		const adcs = []
+	_createEmptyDutyCycles() {
+		const dutyCycles = []
 		for (let i = 0; i < this.opts.size; i++) {
-			adcs.push(0)
+			dutyCycles.push([])
 		}
-		return adcs
+		return dutyCycles
 	}
 
 }
