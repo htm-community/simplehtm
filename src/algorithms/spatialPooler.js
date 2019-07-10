@@ -12,6 +12,7 @@ class SpatialPooler {
 		this._adcs = this._createEmptyDutyCycles()
 		this._odcs = this._createEmptyDutyCycles()
 		this._computeCount = 0
+		this._maxDutyCyclePeriod = 1000
 	}
 
 	getPotentialPools() {
@@ -144,16 +145,20 @@ class SpatialPooler {
 		return this._meanDutyCycle(this._odcs)
 	}
 
-	_updateDutyCycles(dutyCycles, newInput) {
+	_computeDutyCyclePeriod() {
 		let period = this.opts.dutyCyclePeriod !== undefined
 			? this.opts.dutyCyclePeriod : this._computeCount
 		if (period > this._computeCount) {
 			period = this._computeCount
 		}
+		return Math.min(period, this._maxDutyCyclePeriod)
+	}
+
+	_updateDutyCycles(dutyCycles, newInput) {
 		for (let mcIndex = 0; mcIndex < this.opts.size; mcIndex++) {
 			const dutyCycle = dutyCycles[mcIndex]
 			// Moving window
-			if (dutyCycle.length >= period) {
+			if (dutyCycle.length >= this._maxDutyCyclePeriod) {
 				dutyCycle.shift()
 			}
 			dutyCycle.push(newInput[mcIndex])
@@ -161,11 +166,13 @@ class SpatialPooler {
 	}
 
 	_meanDutyCycle(dutyCycles) {
+		const period = this._computeDutyCyclePeriod()
 		return dutyCycles.map(cycle => {
-			const sum = cycle.reduce((accumulator, currentValue) => {
+			const cyclePeriod = Math.min(cycle.length, period)
+			const sum = cycle.slice(cycle.length - cyclePeriod).reduce((accumulator, currentValue) => {
 				return accumulator + currentValue
 			})
-			return sum / cycle.length
+			return sum / cyclePeriod
 		})
 	}
 
